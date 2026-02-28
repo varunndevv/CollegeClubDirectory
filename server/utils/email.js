@@ -1,22 +1,14 @@
 import "../env.js"
 
-import nodemailer from "nodemailer"
+import { Resend } from "resend"
 
 const FROM_EMAIL = process.env.EMAIL_FROM || "noreply@collegeclubdirectory.com"
-
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.EMAIL_PORT || "587"),
-  secure: process.env.EMAIL_PORT === "465",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-})
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 /**
- * Send an OTP email using Resend.
- * Falls back to simulation mode when RESEND_API_KEY is not set.
+ * Send an OTP email using Resend (HTTP Port 443).
+ * Bypasses Render's strict SMTP block on port 587.
+ * Falls back to simulation mode only if RESEND_API_KEY is not set.
  */
 export async function sendOtpEmail(to, otp) {
   const subject = `Your OTP Code: ${otp}`
@@ -34,30 +26,28 @@ export async function sendOtpEmail(to, otp) {
     </div>
   `
 
-  if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  if (process.env.RESEND_API_KEY) {
     try {
-      // Prevent indefinite hanging by wrapping in a 5-second timeout race
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("SMTP Server Timeout")), 5000)
-      );
-
-      const sendPromise = transporter.sendMail({
+      const { data, error } = await resend.emails.send({
         from: FROM_EMAIL,
         to: to,
         subject: subject,
         html: html,
       });
 
-      const result = await Promise.race([sendPromise, timeoutPromise]);
-      console.log(`[Email] Sent OTP to ${to} via Nodemailer (id: ${result.messageId})`)
-      return { sent: true, code: otp }
+      if (error) {
+        console.error("[Email] Resend API error:", error.message);
+        return { sent: false, error: error.message, code: "123456" };
+      }
+
+      console.log(`[Email] Successfully sent OTP to ${to} via Resend (id: ${data.id})`);
+      return { sent: true, code: otp };
     } catch (err) {
-      console.error("[Email] Nodemailer send failed or timed out:", err.message)
-      // On failure, instantly return a fallback OTP so the frontend can still proceed instead of hanging forever
-      return { sent: false, error: err.message, code: "123456" }
+      console.error("[Email] Critical Resend failure:", err.message);
+      return { sent: false, error: err.message, code: "123456" };
     }
   }
 
-  console.warn("[Email] Warning: Email credentials not configured, skipping OTP send.");
-  return { sent: false, error: "Credentials not configured", code: "123456" }
+  console.warn("[Email] Warning: RESEND_API_KEY not configured, skipping actual OTP send.");
+  return { sent: false, error: "Credentials not configured", code: "123456" };
 }
