@@ -1,12 +1,15 @@
 "use client"
 
 import Link from "next/link"
-import { useState, useEffect, Suspense, lazy } from "react"
+import { useState, useEffect } from "react"
 import { ArrowRight, Users, Calendar, Star, Sparkles, Zap, Search, MessagesSquare } from "lucide-react"
 import { InteractiveButton } from "@/components/ui/interactive-button"
 
-const GLSLHills = lazy(() =>
-  import("@/components/ui/glsl-hills").then((mod) => ({ default: mod.GLSLHills }))
+import dynamic from 'next/dynamic'
+
+const GLSLHills = dynamic(() =>
+  import("@/components/ui/glsl-hills").then((mod) => mod.GLSLHills),
+  { ssr: false, loading: () => <div className="w-full h-full" /> }
 )
 
 const stats = [
@@ -56,9 +59,7 @@ export default function HomePage() {
       <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
         {/* GLSL Hills Background for hero */}
         <div className="absolute inset-0 z-[1]">
-          <Suspense fallback={<div className="w-full h-full" />}>
-            <GLSLHills />
-          </Suspense>
+          <GLSLHills />
           {/* Gradient overlays for readability */}
           <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/30 to-background z-10" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-background/30 z-10" />
