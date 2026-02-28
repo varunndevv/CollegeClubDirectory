@@ -25,7 +25,7 @@ export const registerSchema = z.object({
     message: "Email must be from @bmsce.ac.in domain",
   }),
   password: z.string().min(6, "Password must be at least 6 characters").regex(/^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])(?=.*[0-9]).{6,}$/, "Password must contain at least one uppercase letter, one special character, and one number."),
-  usn: z.string().min(1, "USN is required").trim().toUpperCase(),
+  usn: z.string().trim().toUpperCase().regex(/^\d{1}[A-Z]{2}\d{2}[A-Z]{2}\d{3}$/, "Invalid USN format. Must be like 1BM21CS123"),
   yearOfStudy: z.enum(['1', '2', '3', '4', '5', '1st', '2nd', '3rd', '4th', 'Alumni', 'Faculty'], { errorMap: () => ({ message: "Invalid year of study" }) }),
   phoneNumber: z.string().regex(/^[0-9]{10}$/, "Please enter a valid 10-digit phone number"),
   otp: z.string().optional(),

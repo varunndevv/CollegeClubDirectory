@@ -147,12 +147,17 @@ export default function SignUpPage() {
                     <input
                       type="text"
                       value={form.usn}
-                      onChange={(e) => updateForm("usn", e.target.value)}
+                      onChange={(e) => updateForm("usn", e.target.value.toUpperCase())}
                       placeholder="1BM22CS001"
                       required
+                      pattern="\d{1}[A-Za-z]{2}\d{2}[A-Za-z]{2}\d{3}"
+                      title="USN format must be like 1BM21CS123 (1 number, 2 letters, 2 numbers, 2 letters, 3 numbers)"
                       className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-muted border border-border text-foreground placeholder:text-muted-foreground text-sm focus:border-primary/50"
                     />
                   </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Format: 1BM21CS123
+                  </p>
                 </div>
 
                 <div>
