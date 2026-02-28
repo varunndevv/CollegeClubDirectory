@@ -20,6 +20,9 @@ import reviewsRoutes from "./routes/reviews.js"
 
 const app = express()
 
+// Trust the first proxy hop (Render's load balancer) for accurate IP rate limiting
+app.set("trust proxy", 1)
+
 const dev = process.env.NODE_ENV !== "production"
 
 const nextRootCandidates = [
