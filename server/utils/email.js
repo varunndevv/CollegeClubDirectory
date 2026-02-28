@@ -3,7 +3,7 @@ import "../env.js"
 import { Resend } from "resend"
 
 const FROM_EMAIL = process.env.EMAIL_FROM || "noreply@collegeclubdirectory.com"
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 /**
  * Send an OTP email using Resend (HTTP Port 443).
