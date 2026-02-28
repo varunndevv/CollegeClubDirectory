@@ -35,7 +35,10 @@ let nextHandler = null
 /* =====================
    SECURITY & OPTIMIZATION
 ===================== */
-app.use(helmet({ crossOriginResourcePolicy: false }))
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: false // Disable strict CSP to allow Next.js inline hydration scripts
+}))
 app.use(compression())
 
 const apiLimiter = rateLimit({
