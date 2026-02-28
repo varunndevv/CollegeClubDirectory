@@ -7,6 +7,14 @@
  */
 const API_SERVER_URL = process.env.API_SERVER_URL || "http://localhost:4000"
 
+if (!process.env.API_SERVER_URL) {
+  console.warn(
+    "\n⚠️  WARNING: API_SERVER_URL is not set! Falling back to http://localhost:4000.\n" +
+    "   This will cause a browser privacy prompt for ALL users in production.\n" +
+    "   Set API_SERVER_URL in your environment variables (e.g. on Render).\n"
+  )
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
