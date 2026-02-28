@@ -2,7 +2,8 @@ import "../env.js"
 
 import { Resend } from "resend"
 
-const FROM_EMAIL = process.env.EMAIL_FROM || "noreply@collegeclubdirectory.com"
+// Use Resend's required onboarding domain if the user hasn't verified their own custom domain yet
+const FROM_EMAIL = process.env.EMAIL_FROM || "onboarding@resend.dev"
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 /**

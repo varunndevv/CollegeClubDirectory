@@ -128,6 +128,21 @@ router.post(
     }
 
     const emailResult = await sendOtpEmail(email, otpCode)
+
+    // Strict Permanent Fix: Force an error if email fails, instead of silently continuing
+    if (!emailResult.sent) {
+      if (existing) {
+        existing.otpCode = undefined;
+        existing.otpExpiresAt = undefined;
+        await existing.save();
+      } else {
+        await User.deleteOne({ email }); // Rollback user creation if OTP fails outright
+      }
+      return res.status(500).json({
+        message: `Error delivering email: ${emailResult.error}. (Make sure your Resend domain is verified, or you are testing using only your verified Resend email address).`
+      });
+    }
+
     const exposeOtp = process.env.SHOW_DEV_OTP === "true"
 
     const devOtp = exposeOtp ? otpCode : undefined
@@ -200,6 +215,17 @@ router.post(
     await user.save()
 
     const emailResult = await sendOtpEmail(email, otpCode)
+
+    // Strict Permanent Fix: Force an error if email fails, instead of silently continuing
+    if (!emailResult.sent) {
+      user.otpCode = undefined;
+      user.otpExpiresAt = undefined;
+      await user.save();
+      return res.status(500).json({
+        message: `Error delivering email: ${emailResult.error}. (Make sure your Resend domain is verified, or you are testing using only your verified Resend email address).`
+      });
+    }
+
     const exposeOtp = process.env.SHOW_DEV_OTP === "true"
 
     const devOtp = exposeOtp ? otpCode : undefined
@@ -339,6 +365,17 @@ router.post(
     await user.save()
 
     const emailResult = await sendOtpEmail(email, otpCode)
+
+    // Strict Permanent Fix: Force an error if email fails, instead of silently continuing
+    if (!emailResult.sent) {
+      user.otpCode = undefined;
+      user.otpExpiresAt = undefined;
+      await user.save();
+      return res.status(500).json({
+        message: `Error delivering email: ${emailResult.error}. (Make sure your Resend domain is verified, or you are testing using only your verified Resend email address).`
+      });
+    }
+
     const exposeOtp = process.env.SHOW_DEV_OTP === "true"
 
     const devOtp = exposeOtp ? otpCode : undefined
